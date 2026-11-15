@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Petualangan Laut Pintar</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{margin:0;height:100%;font-family:"Trebuchet MS","Comic Sans MS",sans-serif;color:#05324a;overflow:hidden}
+body{background:linear-gradient(#7fe4ff,#1aa7d6 55%,#0a5f94);transition:background 1s}
+#bg{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.f{position:absolute;left:-80px;font-size:34px;animation:sw linear infinite}
+@keyframes sw{to{transform:translateX(120vw)}}
+.b{position:absolute;bottom:-30px;width:14px;height:14px;border-radius:50%;border:2px solid #fff9;animation:up linear infinite}
+@keyframes up{to{transform:translateY(-110vh)}}
+.sand{position:fixed;bottom:0;left:0;right:0;height:60px;background:linear-gradient(#ffe08a,#f2b84b);border-radius:50% 50% 0 0/100% 100% 0 0;pointer-events:none;opacity:.9}
+#v{position:relative;height:100%;overflow-y:auto;padding:12px 14px 70px;max-width:560px;margin:auto}
+h1{margin:6px 0;font-size:34px;line-height:1;color:#fff;text-shadow:0 4px 0 #0a5f94;text-align:center}
+h2{margin:6px 0;font-size:20px}
+.logo{font-size:92px;text-align:center;animation:bob 2.5s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-12px) rotate(4deg)}}
+.btn,.opt{display:block;width:100%;margin:10px 0;padding:16px;border:0;border-radius:24px;font:inherit;font-size:20px;font-weight:700;color:#fff;background:#ff6f59;box-shadow:0 6px 0 #c4412e;cursor:pointer}
+.btn:active,.opt:active{transform:translateY(4px);box-shadow:0 2px 0 #c4412e}
+.btn.y{background:#ffc531;color:#5a3b00;box-shadow:0 6px 0 #c89200}
+.btn.t{background:#18b8a8;box-shadow:0 6px 0 #0c7d72}
+.btn.s{font-size:16px;padding:10px}
+.opt{background:#fff;color:#05324a;box-shadow:0 6px 0 #9bd3e6}
+.opt.ok{background:#5fe08a;box-shadow:0 6px 0 #2a9e53}
+.opt.no{background:#ffe2b8;box-shadow:0 6px 0 #e3b26a}
+.top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.top h2{flex:1;color:#fff;text-shadow:0 2px 0 #0a5f94}
+.bk{border:0;background:#fff;border-radius:50%;width:46px;height:46px;font-size:22px;box-shadow:0 4px 0 #9bd3e6}
+.chip{background:#fff;border-radius:20px;padding:6px 12px;font-weight:700;white-space:nowrap}
+.bar{flex:1;height:16px;background:#ffffff80;border-radius:10px;overflow:hidden}.bar i{display:block;height:100%;background:#ffc531;transition:width .4s}
+.card{background:#fffffff0;border-radius:26px;padding:16px;text-align:center;margin:8px 0;box-shadow:0 6px 0 #0003}
+.big{font-size:96px;animation:bob 2s ease-in-out infinite}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.cell{background:#fff;border-radius:20px;padding:8px 2px;text-align:center;font-size:12px;font-weight:700;border:0;font-family:inherit;color:#05324a;box-shadow:0 4px 0 #9bd3e6}
+.cell span{display:block;font-size:44px}
+.rg{display:flex;align-items:center;gap:12px;width:100%;border:0;border-radius:24px;padding:14px;margin:9px 0;font:inherit;text-align:left;color:#fff;font-weight:700;box-shadow:0 6px 0 #0004}
+.rg span{font-size:44px}.rg small{display:block;font-weight:400}
+.lock{filter:grayscale(.8);opacity:.7}
+.modal{position:fixed;inset:0;background:#0007;display:flex;align-items:center;justify-content:center;padding:18px;z-index:9}
+.modal .card{max-width:420px;width:100%;max-height:90%;overflow:auto;text-align:left}
+.modal .big{text-align:center;font-size:80px}
+.p{margin:6px 0;font-size:16px;line-height:1.35}
+.pg{height:14px;background:#cfeaf4;border-radius:8px;overflow:hidden}.pg i{display:block;height:100%;background:#18b8a8}
+.fx{position:fixed;top:-40px;font-size:30px;pointer-events:none;z-index:20;animation:fall 1.6s ease-in forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(360deg)}}
+.toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:#ffc531;color:#5a3b00;padding:12px 20px;border-radius:22px;font-weight:700;z-index:30;box-shadow:0 5px 0 #c89200}
+input[type=range]{width:100%;height:36px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+@media(prefers-reduced-motion:reduce){.f,.b,.logo,.big{animation:none}}
+</style></head><body>
+<div id="bg"></div><div class="sand"></div><div id="v"></div>
+<script>
+"use strict";
+var $=function(s){return document.querySelector(s)};
+var H=["Laut Dangkal","Terumbu Karang","Rumput Laut","Laut Dalam","Laut Dingin"];
+// emoji, nama, fakta unik, makanan, habitat, penjelasan
+var A=[
+["🦈","Hiu","Giginya bisa tumbuh lagi jika lepas.","Ikan",3,"Hiu adalah ikan besar yang berenang cepat di laut."],
+["🐬","Lumba-lumba","Tidur dengan separuh otak agar tetap bisa bernapas.","Ikan kecil",0,"Lumba-lumba bernapas dengan paru-paru dan pintar sekali."],
+["🐙","Gurita","Punya tiga jantung dan delapan lengan.","Kepiting",1,"Gurita bisa mengubah warna kulitnya untuk bersembunyi."],
+["🐢","Penyu","Penyu betina bertelur di pantai tempat ia lahir.","Lamun",2,"Penyu punya tempurung keras untuk melindungi tubuhnya."],
+["🐋","Paus","Paus biru adalah hewan terbesar di Bumi.","Plankton",3,"Paus adalah mamalia laut yang bernapas lewat lubang di kepalanya."],
+["🐴","Kuda laut","Kuda laut jantan yang mengandung dan melahirkan bayinya.","Udang kecil",2,"Kuda laut berenang tegak dan memegang rumput laut dengan ekornya."],
+["🐠","Ikan badut","Berlindung di anemon laut dengan aman.","Plankton",1,"Ikan badut berwarna oranye dengan garis putih."],
+["🪼","Ubur-ubur","Tubuhnya hampir seluruhnya air, tanpa otak dan tulang.","Plankton kecil",0,"Ubur-ubur melayang pelan dan menyengat dengan tentakelnya."],
+["🌟","Bintang laut","Bisa menumbuhkan lengan baru jika lengannya hilang.","Kerang",0,"Bintang laut bukan ikan, ia punya lima lengan atau lebih."],
+["🦀","Kepiting","Berjalan menyamping dengan sepuluh kaki.","Alga",0,"Kepiting punya capit kuat dan cangkang keras."],
+["🐟","Ikan pari","Tubuhnya pipih seperti layang-layang dan melayang di air.","Kerang kecil",0,"Ikan pari sering berdiam di dasar laut berpasir."],
+["🐡","Ikan buntal","Menggembungkan badan dengan air saat takut.","Siput",1,"Ikan buntal berenang pelan dan bisa menggembung seperti bola."],
+["🦑","Cumi-cumi","Menyemprotkan tinta untuk kabur dari musuh.","Udang",3,"Cumi-cumi berenang cepat dengan menyemprotkan air."],
+["🐚","Kerang","Cangkangnya melindungi tubuhnya yang lunak.","Plankton halus",0,"Kerang menyaring air laut untuk mendapatkan makanan."],
+["🦞","Lobster","Hidup di celah batu dan keluar saat malam.","Ikan kecil",1,"Lobster punya capit besar dan antena panjang."],
+["🐍","Belut laut","Bersembunyi di lubang karang dan menyergap mangsa.","Ikan kecil",1,"Belut laut berbentuk panjang seperti ular."],
+["🗡️","Ikan pedang","Moncongnya panjang dan runcing seperti pedang.","Ikan",3,"Ikan pedang adalah perenang yang sangat cepat."],
+["🐧","Penguin","Tidak bisa terbang tetapi pandai berenang.","Krill",4,"Penguin hidup di daerah dingin dan berenang dengan sayapnya."],
+["🦭","Anjing laut","Berjemur di es atau pantai setelah berburu.","Ikan",4,"Anjing laut punya tubuh licin dan kumis peraba."],
+["🐳","Paus orca","Orca sebenarnya anggota keluarga lumba-lumba.","Ikan besar",4,"Orca berburu bersama kelompoknya dan sangat cerdas."]];
+var QZ=[
+["Hewan laut terbesar di Bumi adalah...","Paus biru","Hiu","Gurita","Penyu"],
+["Gurita punya berapa lengan?","8","6","10","4"],
+["Hewan manakah yang bukan ikan?","Lumba-lumba","Hiu","Ikan badut","Ikan pari"],
+["Ubur-ubur hidup di...","Air laut","Pasir gurun","Hutan","Gunung"],
+["Penyu bertelur di...","Pantai berpasir","Dasar laut","Pohon","Sungai"],
+["Kuda laut berenang dengan posisi...","Tegak","Terbalik","Miring","Telentang"],
+["Bintang laut punya lengan minimal...","5","2","3","1"],
+["Laut berasa...","Asin","Manis","Pahit","Asam"],
+["Apa yang dipakai cumi-cumi untuk kabur?","Tinta","Api","Sayap","Duri"],
+["Penguin hidup di tempat yang...","Dingin","Panas","Gurun","Hutan"]];
+var TR=[["🥤","Plastik"],["🍌","Organik"],["🥫","Kaca & Logam"],["🛍️","Plastik"],["🍎","Organik"],["🍾","Kaca & Logam"],["🧴","Plastik"],["🍂","Organik"],["🥡","Plastik"],["🔩","Kaca & Logam"]];
+var BINS=["Plastik","Organik","Kaca & Logam"];
+var RG=[["Laut Dangkal","🏖️","#4fb8e8","Air hangat dan jernih. Pilihan jawaban: 3."],["Terumbu Karang","🪸","#ff7f6b","Banyak ikan warna-warni. Pilihan: 4."],["Hutan Rumput Laut","🌿","#2fb871","Rimbun dan hijau. Pilihan: 4."],["Laut Dalam","🌌","#3b5bd6","Gelap dan misterius. Pilihan: 4."],["Istana Bawah Laut","🏰","#a569d6","Wilayah rahasia. Pilihan: 4."]];
+var BG=["#7fe4ff,#1aa7d6 55%,#0a5f94","#ffb199,#ff7f6b 40%,#1a8fb8","#a8f0c0,#2fb871 45%,#0a6a58","#4a6fe0,#1e2f8c 50%,#0a1a4a","#d9b0ff,#7c4bc4 50%,#2a1a6a"];
+var NEED=[0,3,8,15,25];
+var GM=[["Tebak Hewan Laut","🔍"],["Pasangkan Habitat","🏠"],["Siapa Makan Apa?","🍽️"],["Kuis Laut Pintar","🧠"],["Selamatkan Laut","♻️"]];
+var BD=[["b1","🥇","Penjelajah Baru","Selesaikan 1 permainan",function(){return cnt()>=1}],
+["b2","⭐","Kolektor Bintang","Kumpulkan 10 bintang",function(){return stars()>=10}],
+["b3","🚀","Level 3","Capai level 3",function(){return lvl()>=3}],
+["b4","📚","Ahli Hewan","Lihat 10 hewan di ensiklopedia",function(){return S.seen.length>=10}],
+["b5","🦸","Pahlawan Laut","Selesaikan Selamatkan Laut",function(){return Object.keys(S.best).some(function(k){return k[0]=="4"})}],
+["b6","👑","Raja Samudra","Kumpulkan 25 bintang",function(){return stars()>=25}]];
+var S={xp:0,best:{},seen:[],badges:[],vol:.7,mute:false,music:true,fin:0};
+try{var sv=JSON.parse(localStorage.getItem("pls"));if(sv)for(var k in sv)S[k]=sv[k]}catch(e){}
+function save(){try{localStorage.setItem("pls",JSON.stringify(S))}catch(e){}}
+function stars(){var t=0;for(var k in S.best)t+=S.best[k];return t}
+function cnt(){return Object.keys(S.best).length}
+function lvl(){return Math.floor(S.xp/100)+1}
+function sh(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+var cur={r:0,g:0},Q=[],qi=0,sc=0,lock=0;
+// ===== audio =====
+var AC;
+document.addEventListener("pointerdown",function(){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state=="suspended")AC.resume()}catch(e){}});
+function tone(f,d,t,v,s){if(S.mute||!AC)return;try{var o=AC.createOscillator(),g=AC.createGain(),T=AC.currentTime+(s||0);o.type=t||"sine";o.frequency.value=f;g.gain.setValueAtTime((v||.25)*S.vol,T);g.gain.exponentialRampToValueAtTime(.001,T+d);o.connect(g);g.connect(AC.destination);o.start(T);o.stop(T+d)}catch(e){}}
+function sfx(k){if(k=="click"){tone(620,.08,"square",.1)}else if(k=="ok"){tone(660,.12);tone(880,.12,"sine",.25,.1);tone(1100,.2,"sine",.25,.2)}else if(k=="no"){tone(330,.25,"triangle",.2);tone(290,.3,"triangle",.15,.15)}else if(k=="lvl"){[523,659,784,1047].forEach(function(f,i){tone(f,.25,"sine",.3,i*.12)})}else if(k=="bub"){tone(800+Math.random()*500,.07,"sine",.15)}}
+var NT=[262,330,392,523,392,330,294,392],ni=0;
+setInterval(function(){if(S.music&&!S.mute&&AC){tone(NT[ni++%8],1.1,"sine",.1)}},650);
+setInterval(function(){if(Math.random()<.5)sfx("bub")},2500);
+// ===== efek =====
+function burst(e,n){for(var i=0;i<(n||14);i++){var s=document.createElement("div");s.className="fx";s.textContent=e;s.style.left=Math.random()*95+"%";s.style.animationDelay=Math.random()*.5+"s";document.body.appendChild(s);setTimeout(function(x){x.remove()},2300,s)}}
+function toast(t){var d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(function(){d.remove()},2200)}
+(function(){var h="",i,f=["🐠","🐟","🐡","🐬","🦈","🐢"];for(i=0;i<6;i++)h+='<div class="f" style="top:'+(8+i*13)+'%;animation-duration:'+(14+i*4)+'s;animation-delay:-'+i*3+'s">'+f[i]+"</div>";for(i=0;i<12;i++)h+='<div class="b" style="left:'+(i*8.3)+'%;animation-duration:'+(7+i%5*2)+'s;animation-delay:-'+i+'s"></div>';$("#bg").innerHTML=h})();
+function theme(r){document.body.style.background="linear-gradient("+BG[r]+")"}
+// ===== navigasi =====
+function R(h){$("#v").innerHTML=h;$("#v").scrollTop=0}
+function go(n){sfx("click");({home:home,map:map,games:games,enc:enc,parent:parent,help:help,set:set})[n]()}
+function top(t,b){return'<div class="top"><button class="bk" onclick="go(\''+b+'\')">⬅️</button><h2>'+t+'</h2><div class="chip">⭐'+stars()+" Lv"+lvl()+"</div></div>"}
+function home(){theme(0);R('<div class="logo">🤿</div><h1>PETUALANGAN<br>LAUT PINTAR</h1><p class="p" style="text-align:center;color:#fff;font-weight:700">Ayo jelajahi laut bersama Si Penyelam Kecil!</p><div class="card" style="padding:8px"><div class="row"><b>Level '+lvl()+'</b><b>⭐ '+stars()+'</b><b>XP '+S.xp+'</b></div><div class="pg"><i style="width:'+S.xp%100+'%"></i></div></div><button class="btn" onclick="go(\'map\')">▶️ MULAI BERMAIN</button><button class="btn t" onclick="go(\'enc\')">📖 ENSIKLOPEDIA</button><button class="btn y" onclick="go(\'help\')">❓ PETUNJUK</button><button class="btn s" onclick="go(\'set\')">⚙️ PENGATURAN</button><button class="btn s" onclick="go(\'parent\')">👪 ORANG TUA</button>')}
+function map(){theme(0);var h=top("Pilih Wilayah Laut","home");RG.forEach(function(r,i){var ok=stars()>=NEED[i];h+='<button class="rg'+(ok?"":" lock")+'" style="background:'+r[2]+'" onclick="'+(ok?"pick("+i+")":"toast(\'Kumpulkan ⭐ "+NEED[i]+" untuk membuka\')")+'"><span>'+(ok?r[1]:"🔒")+"</span><div>"+r[0]+"<small>"+(ok?r[3]:"Butuh ⭐ "+NEED[i])+"</small></div></button>"});R(h)}
+function pick(i){sfx("click");cur.r=i;games()}
+function games(){theme(cur.r);var h=top(RG[cur.r][0],"map");GM.forEach(function(g,i){var s=S.best[i+"_"+cur.r]||0;h+='<button class="btn'+(i%2?" t":"")+'" onclick="start('+i+')">'+g[1]+" "+g[0]+'<br><small>'+"⭐".repeat(s)+"☆".repeat(3-s)+"</small></button>"});R(h)}
+// ===== permainan =====
+function mk(t,b,c,pool,n){var w=sh(pool.filter(function(x,i,a){return x!=c&&a.indexOf(x)==i})).slice(0,n-1),o=sh([c].concat(w));return{t:t,b:b,o:o,a:o.indexOf(c)}}
+function mkQ(g,r){var n=r<1?3:4,L=sh(A).slice(0,10);
+if(g==0)return L.map(function(x){return mk("Hewan apa ini?",x[0],x[1],A.map(function(y){return y[1]}),n)});
+if(g==1)return L.map(function(x){return mk("Di mana "+x[1]+" tinggal?",x[0],H[x[4]],H,n)});
+if(g==2)return L.map(function(x){return mk(x[1]+" makan apa?",x[0],x[3],A.map(function(y){return y[3]}),n)});
+if(g==3)return sh(QZ).map(function(q){return mk(q[0],"🌊",q[1],q.slice(1),n)});
+return sh(TR).map(function(x){return mk("Sampah ini dibuang ke mana?",x[0],x[1],BINS,3)})}
+function start(g){cur.g=g;Q=mkQ(g,cur.r);qi=0;sc=0;showQ()}
+function showQ(){lock=0;var q=Q[qi];R('<div class="top"><button class="bk" onclick="go(\'games\')">⬅️</button><div class="bar"><i style="width:'+qi*10+'%"></i></div><div class="chip">⭐'+sc+'</div></div><div class="card"><div class="big">'+q.b+'</div><h2>'+q.t+'</h2><div id="msg" class="p">&nbsp;</div></div>'+q.o.map(function(o,i){return'<button class="opt" onclick="ans('+i+')">'+o+"</button>"}).join(""))}
+function ans(i){if(lock)return;lock=1;var q=Q[qi],ok=i==q.a,b=document.querySelectorAll(".opt"),l0=lvl();b[q.a].className="opt ok";
+if(ok){sc++;S.xp+=10;sfx("ok");burst("⭐",10);$("#msg").textContent=["Hebat! 🎉","Pintar sekali! 🌟","Benar! Kamu keren! 👏"][qi%3]}
+else{b[i].className="opt no";S.xp+=2;sfx("no");$("#msg").textContent="Hampir benar! Ayo coba lagi nanti. 💙"}
+save();if(lvl()>l0){setTimeout(function(){sfx("lvl");burst("🎉",24);toast("🚀 Naik ke Level "+lvl()+"!")},500)}
+setTimeout(function(){qi++;qi<Q.length?showQ():fin()},1500)}
+function fin(){var s=sc>=9?3:sc>=6?2:1,k=cur.g+"_"+cur.r,nb=[];if(!S.best[k]||s>S.best[k])S.best[k]=s;
+BD.forEach(function(b){if(S.badges.indexOf(b[0])<0&&b[4]()){S.badges.push(b[0]);nb.push(b)}});save();sfx("lvl");burst("⭐",20);
+var tm=stars()>=25&&!S.fin;if(tm)S.fin=1;save();
+R('<div class="card"><div class="big">'+(tm?"👑":"🏆")+"</div><h1 style=\"color:#ff6f59;text-shadow:none\">"+(tm?"TAMAT! Kamu Raja Samudra!":"Selamat!")+'</h1><div style="font-size:44px">'+"⭐".repeat(s)+"☆".repeat(3-s)+'</div><p class="p">Benar: <b>'+sc+" dari 10</b><br>XP kamu: "+S.xp+" · Level "+lvl()+"</p>"+nb.map(function(b){return'<p class="p">'+b[1]+" Badge baru: <b>"+b[2]+"</b></p>"}).join("")+(tm?'<p class="p">Kamu sudah menyelesaikan seluruh petualangan laut. Terima kasih sudah menjaga laut! 🌊</p>':"")+'</div><button class="btn" onclick="start('+cur.g+')">🔁 MAIN LAGI</button><button class="btn t" onclick="go(\'games\')">🎮 PILIH GAME</button><button class="btn y" onclick="go(\'map\')">🗺️ PETA LAUT</button>')}
+// ===== ensiklopedia =====
+function enc(){theme(0);var h=top("Ensiklopedia Laut","home")+'<div class="grid">';A.forEach(function(a,i){h+='<button class="cell" onclick="det('+i+')"><span>'+a[0]+"</span>"+a[1]+"</button>"});R(h+"</div>")}
+function det(i){sfx("click");var a=A[i];if(S.seen.indexOf(i)<0){S.seen.push(i);save()}
+var m=document.createElement("div");m.className="modal";m.onclick=function(e){if(e.target==m)m.remove()};
+m.innerHTML='<div class="card"><div class="big">'+a[0]+"</div><h2 style=\"text-align:center\">"+a[1]+'</h2><p class="p">💡 <b>Fakta unik:</b> '+a[2]+'</p><p class="p">🍽️ <b>Makanan:</b> '+a[3]+'</p><p class="p">🏠 <b>Habitat:</b> '+H[a[4]]+'</p><p class="p">📝 '+a[5]+'</p><button class="btn s" onclick="this.closest(\'.modal\').remove()">TUTUP</button></div>';document.body.appendChild(m);if(S.badges.indexOf("b4")<0&&BD[3][4]()){S.badges.push("b4");save();toast("📚 Badge Ahli Hewan!")}}
+// ===== halaman lain =====
+function help(){theme(0);R(top("Petunjuk","home")+'<div class="card" style="text-align:left"><p class="p">1️⃣ Tekan <b>MULAI BERMAIN</b>, lalu pilih wilayah laut.</p><p class="p">2️⃣ Pilih satu dari 5 permainan.</p><p class="p">3️⃣ Jawab 10 tantangan dengan menyentuh jawaban yang benar.</p><p class="p">4️⃣ Jawaban benar memberi XP dan bintang. Kalau salah, tidak apa-apa, kamu tetap belajar!</p><p class="p">5️⃣ Kumpulkan bintang untuk membuka wilayah laut baru dan badge.</p><p class="p">📖 Buka <b>Ensiklopedia</b> untuk belajar tentang 20 hewan laut.</p></div>')}
+function set(){theme(0);R(top("Pengaturan","home")+'<div class="card"><div class="row"><b>🔊 Volume</b><span id="vp">'+Math.round(S.vol*100)+'%</span></div><input type="range" min="0" max="100" value="'+S.vol*100+'" oninput="S.vol=this.value/100;$(\'#vp\').textContent=this.value+\'%\';save();tone(700,.1)"></div><button class="btn t" onclick="S.mute=!S.mute;save();set()">'+(S.mute?"🔇 Suara MATI (tekan untuk hidupkan)":"🔊 Suara HIDUP (tekan untuk matikan)")+'</button><button class="btn y" onclick="S.music=!S.music;save();set()">'+(S.music?"🎵 Musik HIDUP":"🎵 Musik MATI")+'</button><button class="btn s" onclick="if(confirm(\'Hapus semua progres?\')){S={xp:0,best:{},seen:[],badges:[],vol:.7,mute:false,music:true,fin:0};save();home()}">🗑️ HAPUS PROGRES</button>')}
+function parent(){theme(0);var a=2+Math.floor(Math.random()*7),b=3+Math.floor(Math.random()*6),c=a+b,o=sh([c,c+1,c-1]);
+R(top("Area Orang Tua","home")+'<div class="card"><h2>Pintu orang tua</h2><p class="p">Berapa '+a+" + "+b+"?</p>"+o.map(function(x){return'<button class="opt" onclick="'+(x==c?"pdash()":"toast(\'Belum tepat\')")+'">'+x+"</button>"}).join("")+"</div>")}
+function pdash(){var h=top("Area Orang Tua","home")+'<div class="card" style="text-align:left"><h2>📊 Progres Anak</h2><p class="p">Level: <b>'+lvl()+"</b> · XP: <b>"+S.xp+"</b> · Bintang: <b>⭐"+stars()+"</b></p><p class=\"p\">Tantangan selesai: <b>"+cnt()+" dari 25</b></p><p class=\"p\">Hewan dipelajari: <b>"+S.seen.length+" dari 20</b></p><p class=\"p\">Badge: "+(S.badges.length?BD.filter(function(b){return S.badges.indexOf(b[0])>=0}).map(function(b){return b[1]}).join(" "):"belum ada")+"</p>";
+GM.forEach(function(g,i){var t=0;for(var r=0;r<5;r++)t+=S.best[i+"_"+r]||0;h+='<p class="p">'+g[1]+" "+g[0]+'</p><div class="pg"><i style="width:'+t/15*100+'%"></i></div>'});
+h+='</div><div class="card" style="text-align:left"><h2>🌱 Manfaat</h2><p class="p">Mengenal 20 hewan laut, habitat dan makanannya; melat
